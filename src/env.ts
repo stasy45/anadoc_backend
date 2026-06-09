@@ -10,7 +10,8 @@ export const FORM_VALIDATION = {
 }
 
 export const VALIDATION = {
-
+  TOKEN: 'Неверный токен',
+  USERNOTFOUND: 'Пользователь не найден',
 }
 
 export const COOKIE_SECRET = 'a1b2c3d4e5f67890123456789012345678901234567890123456789012345678'
