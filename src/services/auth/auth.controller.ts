@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common
 import { Response } from 'express';
 import { AuthGuard } from "@/guards/auth/auth.guard";
 import { Throttle } from "@/guards/throttle/thottle.decorator";
-import { LoginDTO } from "@/dtos/auth.dto";
+import { LoginDTO, RegistrationDto } from "@/dtos/auth.dto";
 import { AuthService } from "./auth.service";
 
 
@@ -33,5 +33,17 @@ export class AuthController {
             sameSite: 'strict',
             secure: true,
         });
+    }
+
+    @Post('registration')
+    @Throttle(5, 60_000)
+    async registration(
+        @Body() body: RegistrationDto,
+    ): Promise<void> {
+        await this.authService.postRegistration(
+            body.name,
+            body.email,
+            body.password
+        );
     }
 }

@@ -1,6 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { VALIDATION } from '@/env';
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { signSession } from '@/utils/cookie';
 import { SessionsDB } from './sessions.db';
 import { UsersDB } from '../users/users.db';
@@ -47,5 +47,30 @@ export class AuthService {
     const token = signSession(session.id);
 
     return token;
+  }
+
+  async postRegistration(
+    name: string,
+    email: string,
+    password: string,
+  ): Promise<void> {
+    const existingUser =
+      await this.usersDB.findOneByEmail(email);
+
+    if (existingUser) {
+      throw new ConflictException(VALIDATION.REGISTRATIONFAIL);
+    }
+
+    const passwordHash = await bcrypt.hash(
+      password,
+      10,
+    );
+
+    await this.usersDB.createUser({
+      name,
+      email,
+      password: passwordHash,
+      isConfirmed: false,
+    });
   }
 }

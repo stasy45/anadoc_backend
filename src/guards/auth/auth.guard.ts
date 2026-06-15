@@ -43,9 +43,7 @@ export class AuthGuard implements CanActivate {
     const sessionToken = request.cookies?.sessionToken;
 
     if (!sessionToken) {
-      throw new UnauthorizedException(
-        VALIDATION.DATAERROR,
-      );
+      throw new UnauthorizedException(VALIDATION.DATAERROR);
     }
 
     const id = verifySignedSession(sessionToken)
@@ -54,9 +52,7 @@ export class AuthGuard implements CanActivate {
       await this.sessionsDB.findOneById(id);
 
     if (!session) {
-      throw new NotFoundException(
-        VALIDATION.SESSIONNOTFOUND,
-      );
+      throw new NotFoundException(VALIDATION.SESSIONNOTFOUND);
     }
 
     const now = new Date();
@@ -64,9 +60,7 @@ export class AuthGuard implements CanActivate {
     if (session.expiresAt <= now) {
       await this.sessionsDB.deleteSession(session.id);
 
-      throw new UnauthorizedException(
-        VALIDATION.TOKENEXPIRED,
-      );
+      throw new UnauthorizedException(VALIDATION.TOKENEXPIRED);
     }
 
     const oneHour = 1000 * 60 * 60;
@@ -87,9 +81,7 @@ export class AuthGuard implements CanActivate {
     );
 
     if (!user) {
-      throw new UnauthorizedException(
-        VALIDATION.USERNOTFOUND,
-      );
+      throw new UnauthorizedException(VALIDATION.USERNOTFOUND);
     }
 
     request.user = user;

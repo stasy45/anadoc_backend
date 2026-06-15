@@ -6,6 +6,7 @@ export const VALIDATION = {
   DATAERROR: 'Ошибка данных',
   EMAILPASSERROR: 'Неверный пароль или email',
   LOGINFAIL: 'Ошибка авторизации',
+  REGISTRATIONFAIL: 'Ошибка регистрации',
   USERNOTFOUND: 'Пользователь не найден',
 }
 
