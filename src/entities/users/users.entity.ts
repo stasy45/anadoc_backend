@@ -3,8 +3,9 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  OneToMany,
 } from 'typeorm';
-
+import { Session } from './sessions.entity';
 
 
 @Entity('users')
@@ -12,13 +13,13 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: true, length: 100 })
-  name: string;
-
   @Column({
     unique: true,
   })
   email: string;
+
+  @Column()
+  name: string;
 
   @Column()
   password: string;
@@ -30,4 +31,7 @@ export class User {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @OneToMany(() => Session, (session) => session.user)
+  sessions: Session[];
 }

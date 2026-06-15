@@ -1,5 +1,5 @@
 import * as crypto from 'crypto';
-import { COOKIE_SECRET } from 'src/env';
+import { COOKIE_SECRET } from '@/env';
 
 
 
@@ -10,11 +10,11 @@ function createSignature(value: string): string {
     .digest('hex');
 }
 
-export function signUserId(userId: string): string {
-  return `${userId}.${createSignature(userId.toString())}`;
+export function signSession(session: string): string {
+  return `${session}.${createSignature(session.toString())}`;
 }
 
-export function verifySignedUserId(
+export function verifySignedSession(
   signedCookie?: string,
 ): string | null {
   if (!signedCookie) return null;

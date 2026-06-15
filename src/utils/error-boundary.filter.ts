@@ -5,6 +5,7 @@ import {
   ExceptionFilter,
   HttpException,
 } from '@nestjs/common';
+import { VALIDATION } from '@/env';
 
 
 
@@ -34,7 +35,7 @@ export class ErrorBoundaryFilter implements ExceptionFilter {
           : (exceptionResponse as any)?.message;
 
     response.status(status).json({
-      message: message ?? 'Something went wrong',
+      message: message ?? VALIDATION.DATAERROR,
     });
   }
 }

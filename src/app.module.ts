@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { AuthModule } from './services/auth/auth.module';
 import { UsersModule } from './services/users/users.module';
+import { ThrottleGuard } from './guards/throttle/throttle.guard';
 
 
 @Module({
@@ -30,6 +32,11 @@ import { UsersModule } from './services/users/users.module';
     }),
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottleGuard,
+    },
+  ]
 })
 export class AppModule { }
