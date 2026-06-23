@@ -3,15 +3,19 @@ import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
+import { ThrottleGuard } from './guards/throttle/throttle.guard';
+import { AuthGuard } from './guards/auth/auth.guard';
+
 import { AuthModule } from './services/auth/auth.module';
 import { UsersModule } from './services/users/users.module';
-import { ThrottleGuard } from './guards/throttle/throttle.guard';
+import { DocsModule } from './services/docs/docs.module';
 
 
 @Module({
   imports: [
     AuthModule,
     UsersModule,
+    DocsModule,
 
     ConfigModule.forRoot({
       isGlobal: true,
@@ -33,6 +37,10 @@ import { ThrottleGuard } from './guards/throttle/throttle.guard';
   ],
   controllers: [],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
     {
       provide: APP_GUARD,
       useClass: ThrottleGuard,

@@ -6,6 +6,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Session } from './sessions.entity';
+import { Docs } from '../docs/docs.entity';
 
 
 @Entity('users')
@@ -34,4 +35,7 @@ export class User {
 
   @OneToMany(() => Session, (session) => session.user)
   sessions: Session[];
+
+  @OneToMany(() => Docs, (docs) => docs.author)
+  docs: Docs[];
 }

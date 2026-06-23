@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Res } from "@nestjs/common";
 import { Response } from 'express';
-import { AuthGuard } from "@/guards/auth/auth.guard";
 import { Throttle } from "@/guards/throttle/thottle.decorator";
+import { Public } from "@/guards/auth/public.decorator";
 import { LoginDTO, RegistrationDto } from "@/dtos/auth.dto";
 import { AuthService } from "./auth.service";
 
@@ -13,10 +13,10 @@ export class AuthController {
         private authService: AuthService,
     ) { }
 
-    @UseGuards(AuthGuard)
     @Get('session')
-    async getSession(@Req() req: Request): Promise<void> { }
+    async getSession(): Promise<void> { }
 
+    @Public()
     @Post('login')
     @Throttle(5, 60_000)
     async postLogin(
@@ -35,6 +35,7 @@ export class AuthController {
         });
     }
 
+    @Public()
     @Post('registration')
     @Throttle(5, 60_000)
     async registration(
