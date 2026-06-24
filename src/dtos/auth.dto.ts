@@ -11,7 +11,7 @@ export class LoginDTO {
 }
 
 
-export class RegistrationDto {
+export class RegistrationDTO {
     @IsString({ message: VALIDATION.DATAERROR })
     @MinLength(2, { message: VALIDATION.DATAERROR })
     @MaxLength(50, { message: VALIDATION.DATAERROR })

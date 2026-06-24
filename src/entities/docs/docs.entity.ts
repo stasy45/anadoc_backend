@@ -6,18 +6,18 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { User } from '../users/users.entity';
 
 
+@Index(['author', 'name'], { unique: true })
 @Entity('docs')
 export class Docs {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({
-    unique: true,
-  })
+  @Column()
   name: string;
 
   @CreateDateColumn()

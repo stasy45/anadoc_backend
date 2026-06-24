@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from '@/entities/users/users.entity';
@@ -13,14 +13,24 @@ export class UsersDB {
     private usersRepository: Repository<User>,
   ) { }
 
-  async findOneById(id: string): Promise<User | null> {
+  async findOneById(id: string, options?: FindOneOptions<User>): Promise<User | null> {
     if (!id) return null;
-    return await this.usersRepository.findOneBy({ id });
+    return await this.usersRepository.findOne({
+      where: {
+        id,
+      },
+      ...options
+    });
   }
 
-  async findOneByEmail(email: string): Promise<User | null> {
+  async findOneByEmail(email: string, options?: FindOneOptions<User>): Promise<User | null> {
     if (!email) return null;
-    return await this.usersRepository.findOneBy({ email });
+    return await this.usersRepository.findOne({
+      where: {
+        email,
+      },
+      ...options
+    });
   }
 
   async createUser(user: Partial<User>): Promise<User | null> {

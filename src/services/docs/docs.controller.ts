@@ -1,7 +1,7 @@
-import { Controller, Get, Query, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Query, Req, UseGuards } from "@nestjs/common";
 import { Request } from 'express';
-import { Docs } from "@/entities/docs/docs.entity";
-import { DocsQueryDto } from "@/dtos/docs.dto";
+import { DocsDTO, DocsNameDTO, DocsQueryDTO } from "@/dtos/docs.dto";
+import { DocInUserGuard } from "@/guards/docs/docs-in-user.guard";
 import { DocsService } from "./docs.service";
 
 
@@ -13,8 +13,36 @@ export class DocsController {
     ) { }
 
     @Get()
-    async getDocs(@Req() req: Request, @Query() query: DocsQueryDto): Promise<Docs[] | null> {
-        console.log(req.user)
-        return null
+    async getDocs(
+        @Req() req: Request,
+        @Query() query: DocsQueryDTO
+    ): Promise<DocsDTO[]> {
+        return await this.docsService.getDocs(req.user.id, query)
+    }
+
+    @Delete('delete/all')
+    async deleteAllDocs(
+        @Req() req: Request
+    ): Promise<void> {
+        return await this.docsService.deleteAllDocs(req.user.id)
+    }
+
+    @UseGuards(DocInUserGuard)
+    @Delete('delete/:docId')
+    async deleteDoc(
+        @Req() req: Request,
+        @Param('docId') docId: string
+    ): Promise<void> {
+        return await this.docsService.deleteDoc(req.user.id, docId)
+    }
+
+    @UseGuards(DocInUserGuard)
+    @Patch('rename/:docId')
+    async patchDocName(
+        @Req() req: Request,
+        @Param('docId') docId: string,
+        @Body() body: DocsNameDTO,
+    ): Promise<void> {
+        return await this.docsService.patchDocName(req.user.id, docId, body)
     }
 }

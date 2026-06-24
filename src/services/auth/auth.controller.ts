@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Res } from "@nestjs/common";
 import { Response } from 'express';
 import { Throttle } from "@/guards/throttle/thottle.decorator";
 import { Public } from "@/guards/auth/public.decorator";
-import { LoginDTO, RegistrationDto } from "@/dtos/auth.dto";
+import { LoginDTO, RegistrationDTO } from "@/dtos/auth.dto";
 import { AuthService } from "./auth.service";
 
 
@@ -23,10 +23,7 @@ export class AuthController {
         @Body() body: LoginDTO,
         @Res({ passthrough: true }) res: Response,
     ): Promise<void> {
-        const token = await this.authService.postLogin(
-            body.email,
-            body.password,
-        );
+        const token = await this.authService.postLogin(body);
 
         res.cookie('sessionToken', token, {
             httpOnly: true,
@@ -39,12 +36,8 @@ export class AuthController {
     @Post('registration')
     @Throttle(5, 60_000)
     async registration(
-        @Body() body: RegistrationDto,
+        @Body() body: RegistrationDTO,
     ): Promise<void> {
-        await this.authService.postRegistration(
-            body.name,
-            body.email,
-            body.password
-        );
+        await this.authService.postRegistration(body);
     }
 }

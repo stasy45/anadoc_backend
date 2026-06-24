@@ -2,6 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { VALIDATION } from '@/env';
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { signSession } from '@/utils/cookie';
+import { LoginDTO, RegistrationDTO } from '@/dtos/auth.dto';
 import { SessionsDB } from './sessions.db';
 import { UsersDB } from '../users/users.db';
 
@@ -15,15 +16,15 @@ export class AuthService {
     private sessionsDB: SessionsDB,
   ) { }
 
-  async postLogin(email: string, password: string): Promise<string> {
-    const user = await this.usersDB.findOneByEmail(email);
+  async postLogin(body: LoginDTO): Promise<string> {
+    const user = await this.usersDB.findOneByEmail(body.email);
 
     if (!user) {
       throw new NotFoundException(VALIDATION.EMAILPASSERROR);
     }
 
     const isValidPassword = await bcrypt.compare(
-      password,
+      body.password,
       user.password,
     );
 
@@ -49,26 +50,22 @@ export class AuthService {
     return token;
   }
 
-  async postRegistration(
-    name: string,
-    email: string,
-    password: string,
-  ): Promise<void> {
+  async postRegistration(body: RegistrationDTO): Promise<void> {
     const existingUser =
-      await this.usersDB.findOneByEmail(email);
+      await this.usersDB.findOneByEmail(body.email);
 
     if (existingUser) {
       throw new ConflictException(VALIDATION.REGISTRATIONFAIL);
     }
 
     const passwordHash = await bcrypt.hash(
-      password,
+      body.password,
       10,
     );
 
     await this.usersDB.createUser({
-      name,
-      email,
+      name: body.name,
+      email: body.email,
       password: passwordHash,
       isConfirmed: false,
     });

@@ -1,6 +1,6 @@
 import { Controller, Get, Req } from "@nestjs/common";
 import { Request } from 'express';
-import { User } from "@/entities/users/users.entity";
+import { UserDTO } from "@/dtos/users.dto";
 
 
 
@@ -10,7 +10,13 @@ export class UsersController {
     ) { }
 
     @Get('info')
-    async getUserInfo(@Req() req: Request): Promise<User> {
-        return req.user
+    async getUserInfo(
+        @Req() req: Request
+    ): Promise<UserDTO> {
+        return {
+            name: req.user.name,
+            email: req.user.email,
+            createdAt: req.user.createdAt
+        }
     }
 }
