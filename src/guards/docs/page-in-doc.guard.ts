@@ -9,7 +9,7 @@ import { VALIDATION } from '@/env';
 import { DocsDB } from '@/services/docs/docs.db';
 
 @Injectable()
-export class DocInUserGuard implements CanActivate {
+export class PageInDocGuard implements CanActivate {
     constructor(
         private readonly docsDB: DocsDB,
     ) { }
@@ -17,16 +17,16 @@ export class DocInUserGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
 
-        const userId = request.user.id;
         const docId = request.params.docId;
+        const pageId = request.params.pageId;
 
-        const doc = await this.docsDB.findOneById(docId, { relations: { author: true } });
+        const doc = await this.docsDB.findOneById(docId, { relations: { pages: true } });
 
         if (!doc) {
             throw new NotFoundException(VALIDATION.NOPERMISSION);
         }
 
-        if (doc.author.id !== userId) {
+        if (!doc.pages.find(page => page.id === pageId)) {
             throw new ForbiddenException(VALIDATION.NOPERMISSION);
         }
 

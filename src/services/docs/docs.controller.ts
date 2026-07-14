@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Patch, Query, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from "@nestjs/common";
 import { Request } from 'express';
-import { DocsDTO, DocsNameDTO, DocsQueryDTO } from "@/dtos/docs.dto";
+import { DocPageId, DocsDTO, DocsNameDTO, DocsQueryDTO } from "@/dtos/docs.dto";
 import { DocInUserGuard } from "@/guards/docs/docs-in-user.guard";
+import { PageInDocGuard } from "@/guards/docs/page-in-doc.guard";
 import { DocsService } from "./docs.service";
 
 
@@ -44,5 +45,37 @@ export class DocsController {
         @Body() body: DocsNameDTO,
     ): Promise<void> {
         return await this.docsService.patchDocName(req.user.id, docId, body)
+    }
+
+    @Post('create')
+    async postDoc(
+        @Req() req: Request,
+    ): Promise<DocPageId> {
+        return await this.docsService.postDoc(req.user.id)
+    }
+
+    @UseGuards(DocInUserGuard)
+    @Get(':docId')
+    async getDocInfo(
+        @Param('docId') docId: string,
+    ): Promise<DocsDTO> {
+        return await this.docsService.getDocInfo(docId)
+    }
+
+    @UseGuards(DocInUserGuard)
+    @Post(':docId/pages/create')
+    async postPage(
+        @Param('docId') docId: string,
+    ): Promise<DocPageId> {
+        return await this.docsService.postPage(docId)
+    }
+
+    @UseGuards(DocInUserGuard, PageInDocGuard)
+    @Delete(':docId/pages/delete/:pageId')
+    async deletePage(
+        @Param('docId') docId: string,
+        @Param('pageId') pageId: string,
+    ): Promise<void> {
+        await this.docsService.deletePage(docId, pageId)
     }
 }

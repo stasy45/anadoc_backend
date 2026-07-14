@@ -1,4 +1,4 @@
-import { FindOneOptions, ILike, In, Repository } from 'typeorm';
+import { FindOneOptions, ILike, Repository } from 'typeorm';
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Docs } from '@/entities/docs/docs.entity';
@@ -85,5 +85,16 @@ export class DocsDB {
         id: authorId,
       },
     }, doc);
+  }
+
+  async create(authorId: string, doc: Partial<Docs>): Promise<Docs> {
+    if (!authorId) return;
+
+    return await this.docsRepository.save({
+      author: {
+        id: authorId,
+      },
+      ...doc
+    });
   }
 }

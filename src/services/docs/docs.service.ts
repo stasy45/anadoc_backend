@@ -1,7 +1,7 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { VALIDATION } from '@/env';
-import { DocsDTO, DocsNameDTO, DocsQueryDTO } from '@/dtos/docs.dto';
+import { Injectable } from '@nestjs/common';
+import { DocPageId, DocsDTO, DocsNameDTO, DocsQueryDTO } from '@/dtos/docs.dto';
 import { DocsDB } from './docs.db';
+import { PagesDB } from './pages.db';
 
 
 
@@ -10,6 +10,7 @@ import { DocsDB } from './docs.db';
 export class DocsService {
   constructor(
     private docsDB: DocsDB,
+    private pagesDB: PagesDB,
   ) { }
 
   async getDocs(authorId: string, query: DocsQueryDTO): Promise<DocsDTO[]> {
@@ -29,12 +30,38 @@ export class DocsService {
     id: string,
     body: DocsNameDTO,
   ): Promise<void> {
-    const exists = await this.docsDB.existsByAuthorName(authorId, body.name)
-
-    if (exists) {
-      throw new ConflictException(VALIDATION.DOCALREADYEXIST);
-    }
-
     await this.docsDB.editById(authorId, id, body);
+  }
+
+  async postDoc(
+    authorId: string,
+  ): Promise<DocPageId> {
+    const doc = await this.docsDB.create(authorId, null);
+    const page = await this.pagesDB.create(doc.id, null);
+
+    return {
+      docId: doc.id,
+      pageId: page.id
+    }
+  }
+
+  async getDocInfo(
+    docId: string,
+  ): Promise<DocsDTO> {
+    return await this.docsDB.findOneById(docId, { relations: { pages: true } });
+  }
+
+  async postPage(
+    docId: string,
+  ): Promise<DocPageId> {
+    const page = await this.pagesDB.create(docId, null);
+
+    return {
+      pageId: page.id
+    }
+  }
+
+  async deletePage(docId: string, id: string): Promise<void> {
+    return await this.pagesDB.deleteById(docId, id)
   }
 }

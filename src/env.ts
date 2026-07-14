@@ -8,9 +8,7 @@ export const VALIDATION = {
   LOGINFAIL: 'Ошибка авторизации',
   REGISTRATIONFAIL: 'Ошибка регистрации',
   USERNOTFOUND: 'Пользователь не найден',
-  DOCNOTFOUND: 'Документ не найден',
-  DOCNOPERMISSION: 'Недостаточно прав для совершения действия',
-  DOCALREADYEXIST: 'Документ с таким названием уже существует',
+  NOPERMISSION: 'Недостаточно прав для совершения действия',
 }
 
 export const COOKIE_SECRET = 'a1b2c3d4e5f67890123456789012345678901234567890123456789012345678'

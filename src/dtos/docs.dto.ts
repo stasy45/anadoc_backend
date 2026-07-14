@@ -9,8 +9,6 @@ import { Docs } from "@/entities/docs/docs.entity";
 export class DocsQueryDTO {
     @IsString({ message: VALIDATION.DATAERROR })
     @IsOptional()
-    @MinLength(2, { message: VALIDATION.DATAERROR })
-    @MaxLength(50, { message: VALIDATION.DATAERROR })
     searchLine: string;
 }
 
@@ -22,3 +20,8 @@ export class DocsNameDTO {
 }
 
 export interface DocsDTO extends Omit<Docs, 'author'> { }
+
+export interface DocPageId {
+    docId?: string,
+    pageId: string
+}

@@ -4,11 +4,13 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { User } from './users.entity';
 
 
 @Entity('sessions')
+@Index(['expiresAt'])
 export class Session {
   @PrimaryGeneratedColumn('uuid')
   id: string;
