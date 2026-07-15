@@ -46,7 +46,7 @@ export interface PageContentBlock {
     indent?: number;
     listStyleType?: ListStyleType;
     listStart?: number;
-    listRestartPolite?: boolean;
+    listRestartPolite?: number;
     checked?: boolean;
 }
 

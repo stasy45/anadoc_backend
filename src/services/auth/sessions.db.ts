@@ -23,8 +23,8 @@ export class SessionsDB {
     return await this.sessionsRepository.save(session);
   }
 
-  async updateSession(expiresAt: Date): Promise<Session | null> {
-    return await this.sessionsRepository.save({ expiresAt });
+  async updateSession(session: Session): Promise<Session | null> {
+    return await this.sessionsRepository.save(session);
   }
 
   async deleteSession(id: string): Promise<DeleteResult | null> {

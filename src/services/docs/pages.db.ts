@@ -44,4 +44,18 @@ export class PagesDB {
       },
     });
   }
+
+  async edit(docId: string, id: string, page: Partial<Pages>): Promise<void> {
+    if (!docId || !id) return;
+
+    await this.pagesRepository.update(
+      {
+        id,
+        doc: {
+          id: docId,
+        },
+      },
+      page,
+    );
+  }
 }

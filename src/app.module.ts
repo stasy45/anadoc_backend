@@ -39,11 +39,11 @@ import { DocsModule } from './services/docs/docs.module';
   providers: [
     {
       provide: APP_GUARD,
-      useClass: AuthGuard,
+      useClass: ThrottleGuard,
     },
     {
       provide: APP_GUARD,
-      useClass: ThrottleGuard,
+      useClass: AuthGuard,
     },
   ]
 })

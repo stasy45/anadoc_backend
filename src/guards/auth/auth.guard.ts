@@ -59,21 +59,7 @@ export class AuthGuard implements CanActivate {
 
     if (session.expiresAt <= now) {
       await this.sessionsDB.deleteSession(session.id);
-
       throw new UnauthorizedException(VALIDATION.TOKENEXPIRED);
-    }
-
-    const oneHour = 1000 * 60 * 60;
-
-    const ttl =
-      session.expiresAt.getTime() - now.getTime();
-
-    if (ttl < oneHour) {
-      session.expiresAt = new Date(
-        now.getTime() + 30 * 24 * 60 * 60 * 1000,
-      );
-
-      await this.sessionsDB.updateSession(session.expiresAt);
     }
 
     const user = await this.usersDB.findOneById(
