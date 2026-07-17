@@ -23,5 +23,5 @@ export interface DocsDTO extends Omit<Docs, 'author'> { }
 
 export interface DocPageId {
     docId?: string,
-    pageId: string
+    pageId?: string
 }

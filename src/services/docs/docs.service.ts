@@ -37,11 +37,9 @@ export class DocsService {
     authorId: string,
   ): Promise<DocPageId> {
     const doc = await this.docsDB.create(authorId, null);
-    const page = await this.pagesDB.create(doc.id, null);
 
     return {
-      docId: doc.id,
-      pageId: page.id
+      docId: doc.id
     }
   }
 
