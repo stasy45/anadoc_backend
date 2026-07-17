@@ -48,7 +48,7 @@ export class PagesGateway {
   // ПОТОК 1: ПОЛУЧЕНИЕ ДАННЫХ (Join & Validate)
   // ==========================================
   @SubscribeMessage('page:join')
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
   async joinPage(
     @ConnectedSocket() client: AuthenticatedSocket,
     @MessageBody() body: JoinPageDTO,

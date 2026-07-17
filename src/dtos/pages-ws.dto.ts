@@ -4,7 +4,6 @@ import {
     IsIn,
     IsInt,
     IsNotEmpty,
-    IsNumber,
     IsOptional,
     IsString,
     MaxLength,
@@ -30,44 +29,59 @@ const LIST_STYLE_TYPES: ListStyleType[] = ['disc', 'decimal', 'todo'];
 // ==========================================
 
 export class PageContentChildDTO {
+    // text может отсутствовать в узлах-обёртках
+    @IsOptional()
     @IsString({ message: VALIDATION.DATAERROR })
-    text: string;
+    text?: string;
 
+    // ✅ КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: Фронтенд не отправляет false, он просто опускает поле.
+    // Без @IsOptional() валидатор падает на undefined.
+    @IsOptional()
     @IsBoolean({ message: VALIDATION.DATAERROR })
-    bold: boolean;
-
-    @IsBoolean({ message: VALIDATION.DATAERROR })
-    italic: boolean;
-
-    @IsBoolean({ message: VALIDATION.DATAERROR })
-    underline: boolean;
-
-    @IsBoolean({ message: VALIDATION.DATAERROR })
-    strikethrough: boolean;
-
-    @IsBoolean({ message: VALIDATION.DATAERROR })
-    code: boolean;
-
-    @IsBoolean({ message: VALIDATION.DATAERROR })
-    kbd: boolean;
+    bold?: boolean;
 
     @IsOptional()
-    @IsIn(['code_line'], { message: VALIDATION.DATAERROR })
-    type?: 'code_line';
+    @IsBoolean({ message: VALIDATION.DATAERROR })
+    italic?: boolean;
+
+    @IsOptional()
+    @IsBoolean({ message: VALIDATION.DATAERROR })
+    underline?: boolean;
+
+    @IsOptional()
+    @IsBoolean({ message: VALIDATION.DATAERROR })
+    strikethrough?: boolean;
+
+    @IsOptional()
+    @IsBoolean({ message: VALIDATION.DATAERROR })
+    code?: boolean;
+
+    @IsOptional()
+    @IsBoolean({ message: VALIDATION.DATAERROR })
+    kbd?: boolean;
+
+    // Расширили тип, так как Plate может слать свои внутренние типы
+    @IsOptional()
+    @IsString({ message: VALIDATION.DATAERROR })
+    type?: string;
 }
 
 export class PageContentBlockDTO {
+    // ✅ КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: id может не генерироваться на фронте для некоторых узлов
+    @IsOptional()
     @IsString({ message: VALIDATION.DATAERROR })
-    @IsNotEmpty({ message: VALIDATION.DATAERROR })
-    id: string;
+    id?: string;
 
+    // ✅ КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: На скриншоте видно, что type отсутствует. Делаем опциональным.
+    @IsOptional()
     @IsIn(BLOCK_TYPES, { message: VALIDATION.DATAERROR })
-    type: BlockType;
+    type?: BlockType;
 
+    @IsOptional()
     @IsArray({ message: VALIDATION.DATAERROR })
     @ValidateNested({ each: true })
     @Type(() => PageContentChildDTO)
-    children: PageContentChildDTO[];
+    children?: PageContentChildDTO[];
 
     @IsOptional()
     @IsIn(ALIGN_TYPES, { message: VALIDATION.DATAERROR })
@@ -87,7 +101,7 @@ export class PageContentBlockDTO {
     listStart?: number;
 
     @IsOptional()
-    @IsNumber({}, { message: VALIDATION.DATAERROR })
+    @IsBoolean({ message: VALIDATION.DATAERROR }) // Исправлено с IsNumber на IsBoolean, так как это флаг
     listRestartPolite?: boolean;
 
     @IsOptional()
@@ -99,10 +113,6 @@ export class PageContentBlockDTO {
 // DTO для потоков WebSocket
 // ==========================================
 
-/**
- * Поток 1: Подключение и валидация прав.
- * Клиент отправляет это один раз при открытии страницы.
- */
 export class JoinPageDTO {
     @IsString({ message: VALIDATION.DATAERROR })
     @IsNotEmpty({ message: VALIDATION.DATAERROR })
@@ -117,11 +127,6 @@ export class JoinPageDTO {
     pageId: string;
 }
 
-/**
- * Поток 2: Отправка изменений.
- * Клиент отправляет это при каждом изменении. 
- * Поля сделаны опциональными, чтобы можно было обновить только title или только content.
- */
 export class EditPageDTO {
     @IsOptional()
     @IsString({ message: VALIDATION.DATAERROR })
@@ -135,9 +140,6 @@ export class EditPageDTO {
     content?: PageContentBlockDTO[];
 }
 
-/**
- * Формат ответа сервера при успешном join или update
- */
 export interface EditPageResponse {
     title?: string;
     content?: PageContentBlockDTO[];

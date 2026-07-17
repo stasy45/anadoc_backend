@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Post, Res } from "@nestjs/common";
-import { Response } from 'express';
+import { Body, Controller, Get, Post, Req, Res, UnauthorizedException } from "@nestjs/common";
+import { Response, Request } from 'express';
 import { Throttle } from "@/guards/throttle/thottle.decorator";
 import { Public } from "@/guards/auth/public.decorator";
 import { LoginDTO, RegistrationDTO } from "@/dtos/auth.dto";
 import { AuthService } from "./auth.service";
+import { VALIDATION } from "@/env";
 
 
 
@@ -40,5 +41,16 @@ export class AuthController {
         @Body() body: RegistrationDTO,
     ): Promise<void> {
         await this.authService.postRegistration(body);
+    }
+
+    @Get('ws-token')
+    async getWsToken(@Req() req: Request) {
+        const sessionToken = req.cookies?.sessionToken;
+
+        if (!sessionToken) {
+            throw new UnauthorizedException(VALIDATION.DATAERROR);
+        }
+
+        return { token: sessionToken };
     }
 }
