@@ -3,39 +3,47 @@ import {
     IsBoolean,
     IsIn,
     IsInt,
-    IsNotEmpty,
     IsOptional,
     IsString,
     MaxLength,
     Min,
     ValidateNested,
+    IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { VALIDATION } from '@/env';
-import {
-    AlignType,
-    BlockType,
-    ListStyleType,
-} from '@/entities/docs/pages.entity';
+// Убедитесь, что пути к вашим типам верны
+import { AlignType, BlockType, ListStyleType } from '@/entities/docs/pages.entity';
 
-const BLOCK_TYPES: BlockType[] = [
-    'h1', 'h2', 'h3', 'h4', 'p', 'hr', 'toggle', 'code_block', 'blockquote',
-];
-const ALIGN_TYPES: AlignType[] = ['left', 'center', 'right'];
-const LIST_STYLE_TYPES: ListStyleType[] = ['disc', 'decimal', 'todo'];
+// Добавлен 'code_line', так как он встречается в вашем JSON внутри code_block
+const ALLOWED_TYPES = [
+    'h1', 'h2', 'h3', 'h4', 'p', 'hr', 'toggle', 'code_block', 'blockquote', 'code_line'
+] as const;
 
-// ==========================================
-// Вложенные DTO для структуры контента
-// ==========================================
+const ALIGN_TYPES = ['left', 'center', 'right'] as const;
+const LIST_STYLE_TYPES = ['disc', 'decimal', 'todo'] as const;
 
-export class PageContentChildDTO {
-    // text может отсутствовать в узлах-обёртках
+/**
+ * Универсальный рекурсивный узел контента (Slate Node)
+ * В Slate узел может быть одновременно leaf (текст) и element (блок с children).
+ * Один класс с опциональными полями решает проблемы валидации union-типов.
+ */
+export class PageContentNodeDTO {
+    @IsOptional()
+    @IsString({ message: VALIDATION.DATAERROR })
+    id?: string;
+
+    @IsOptional()
+    @IsIn(ALLOWED_TYPES, { message: VALIDATION.DATAERROR })
+    type?: typeof ALLOWED_TYPES[number];
+
+    // ==========================================
+    // Свойства текстового узла (Leaf)
+    // ==========================================
     @IsOptional()
     @IsString({ message: VALIDATION.DATAERROR })
     text?: string;
 
-    // ✅ КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: Фронтенд не отправляет false, он просто опускает поле.
-    // Без @IsOptional() валидатор падает на undefined.
     @IsOptional()
     @IsBoolean({ message: VALIDATION.DATAERROR })
     bold?: boolean;
@@ -60,32 +68,19 @@ export class PageContentChildDTO {
     @IsBoolean({ message: VALIDATION.DATAERROR })
     kbd?: boolean;
 
-    // Расширили тип, так как Plate может слать свои внутренние типы
-    @IsOptional()
-    @IsString({ message: VALIDATION.DATAERROR })
-    type?: string;
-}
-
-export class PageContentBlockDTO {
-    // ✅ КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: id может не генерироваться на фронте для некоторых узлов
-    @IsOptional()
-    @IsString({ message: VALIDATION.DATAERROR })
-    id?: string;
-
-    // ✅ КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: На скриншоте видно, что type отсутствует. Делаем опциональным.
-    @IsOptional()
-    @IsIn(BLOCK_TYPES, { message: VALIDATION.DATAERROR })
-    type?: BlockType;
-
+    // ==========================================
+    // Свойства блочного узла (Element)
+    // ==========================================
+    // Рекурсивная вложенность: массив таких же узлов
     @IsOptional()
     @IsArray({ message: VALIDATION.DATAERROR })
     @ValidateNested({ each: true })
-    @Type(() => PageContentChildDTO)
-    children?: PageContentChildDTO[];
+    @Type(() => PageContentNodeDTO) // <-- Ключевой момент: рекурсивная ссылка на этот же класс
+    children?: PageContentNodeDTO[];
 
     @IsOptional()
     @IsIn(ALIGN_TYPES, { message: VALIDATION.DATAERROR })
-    align?: AlignType;
+    align?: typeof ALIGN_TYPES[number];
 
     @IsOptional()
     @IsInt({ message: VALIDATION.DATAERROR })
@@ -94,14 +89,14 @@ export class PageContentBlockDTO {
 
     @IsOptional()
     @IsIn(LIST_STYLE_TYPES, { message: VALIDATION.DATAERROR })
-    listStyleType?: ListStyleType;
+    listStyleType?: typeof LIST_STYLE_TYPES[number];
 
     @IsOptional()
     @IsInt({ message: VALIDATION.DATAERROR })
     listStart?: number;
 
     @IsOptional()
-    @IsBoolean({ message: VALIDATION.DATAERROR }) // Исправлено с IsNumber на IsBoolean, так как это флаг
+    @IsBoolean({ message: VALIDATION.DATAERROR })
     listRestartPolite?: boolean;
 
     @IsOptional()
@@ -136,11 +131,11 @@ export class EditPageDTO {
     @IsOptional()
     @IsArray({ message: VALIDATION.DATAERROR })
     @ValidateNested({ each: true })
-    @Type(() => PageContentBlockDTO)
-    content?: PageContentBlockDTO[];
+    @Type(() => PageContentNodeDTO)
+    content?: PageContentNodeDTO[];
 }
 
 export interface EditPageResponse {
     title?: string;
-    content?: PageContentBlockDTO[];
+    content?: PageContentNodeDTO[];
 }
